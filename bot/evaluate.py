@@ -1,7 +1,8 @@
-
+from common import *
+import math
 # board is a 8x8 2d array containing pieces that are either W, B, .
 # turn_color is W or B
-def evaluate_board(board, turn_color):
+def heuristic(board, turn_color):
 
     #initial score
     score = 0
@@ -9,12 +10,15 @@ def evaluate_board(board, turn_color):
     # 3 in a row
     # if(check_win == true):
     #     score = +infinity
-
+    if turn_color in check_winner(board):
+        #print("got here")
+        #print(board)
+        return math.inf
     # two in a row - maybe let chains handle this - maybe check for 2 in a row (blocked/unblocked)
     
     #check for chains and increase score using quadratic multiplier
+    
     chains, chain_sizes = find_chains(board, turn_color)
-    print(chain_sizes)
     for chain_size in chain_sizes:
         score += chain_size * chain_size
 
@@ -62,10 +66,10 @@ def find_chains(board, turn_color):
 if __name__ == "__main__":
     board = [
     ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', 'W', 'W', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'B', '.', '.', '.', 'B'],
-    ['.', '.', 'B', 'B', 'B', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.']
