@@ -180,4 +180,4 @@ if __name__ == "__main__":
     ['.', '.', 'B', '.', 'B', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.']
     ]
-    print(evaluate_board(board, 'B'))
+    print(heuristic(board, 'B'))
