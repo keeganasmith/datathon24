@@ -26,6 +26,79 @@ def heuristic(board, turn_color):
     # apply penalty to having adjacent enemies in your chain
     score += penalize_adjacent_enemies_in_chain(board, chains, turn_color)
 
+
+    #Find distance between chains:
+    # chain_centers = []
+
+    # for i in range(chains):
+    #     chain_centers[i] = chain_center(i)
+
+    # for i in range(chains-1):
+    #     for j in range(i+1, chains):
+
+    tiles = get_tiles(board)
+
+
+    pulse_weights =[2, 1.5]
+
+
+    for i in range(len(tiles)):
+        #print("Starting ", i)
+        #print(tiles[i])
+        for j in range(len(pulse_weights)):
+            score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], pulse_weights[j], j+1)
+    
+    #find closest peg horizontally, and closest peg vertically
+
+    #make into square, other chain peg is corner, horizontally and vertically  are opposite sides
+
+    #count how many enemy pegs in square, add some 
+
+    return score
+
+
+def get_tiles(board):
+    rows = len(board)
+    cols = len(board[0]) if rows > 0 else 0
+    tiles = []
+    for i in range(rows):
+        for j in range(cols):
+            if(board[i][j] == 'B'):
+                tiles.append((i,j))
+    return tiles
+
+def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
+    """
+    Gets the positions surrounding a given cell within a specified radius, applying torus rules (wrapping around edges).
+
+    Parameters:
+    grid (list of list): The 2D grid representing the board.
+    row (int): Row index of the cell to check.
+    col (int): Column index of the cell to check.
+    radius (int): Radius to check around the cell.
+
+    Returns:
+    list of tuples: List of (row, col) positions within the radius.
+    """
+    max_row = len(board)
+    max_col = len(board[0]) if max_row > 0 else 0
+
+    score = 0
+    for r in range(row - radius, row + radius + 1):
+        for c in range(col - radius, col + radius + 1):
+            # Apply torus wrapping for rows and columns
+            wrapped_r = r % max_row
+            wrapped_c = c % max_col
+
+            # Check if the position is not the center position
+            if (wrapped_r != row or wrapped_c != col):
+                if(board[wrapped_r][wrapped_c] == 'B'):
+                    score += fweight
+                    #print("Near friend at radius: ", radius)
+                elif(board[wrapped_r][wrapped_c] != '.'):
+                    score -= eweight
+                    #print("Near enemy at radius: ", radius)
+
     return score
 
 
@@ -99,10 +172,12 @@ if __name__ == "__main__":
     board = [
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', 'B', '.', '.', 'B', '.'],
+    ['.', '.', 'B', 'B', 'B', '.', '.', '.'],
     ['.', '.', '.', 'B', '.', '.', '.', 'B'],
     ['.', '.', 'B', '.', 'B', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.']
     ]
     print(evaluate_board(board, 'B'))
