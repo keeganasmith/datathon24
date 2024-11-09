@@ -61,7 +61,9 @@ def make_soft_move(board, move):
     board[move.r1][move.c1] = board[move.r0][move.c0]
     board[move.r0][move.c0] = empty
 def make_move(board, move, turn_color):
-    if(not (move.r0 is None or move.c0 is None)): #moving a piece (not placing)
+    if(move is None):
+        print("why is move noen?")
+    if move.r0 is not None and move.c0 is not None: #moving a piece (not placing)
         board[move.r0][move.c0] = "."
     
     board[move.r1][move.c1] = turn_color

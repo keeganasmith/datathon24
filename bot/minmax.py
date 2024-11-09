@@ -42,6 +42,8 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
             if(added_piece):
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
+        if best_move is None:
+            best_move = valid_moves[0]
         return max_value, best_move
     else:
         min_value = math.inf
@@ -62,6 +64,12 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
         return min_value, None
+def display_board(board):
+    for i in range(0, len(board)):
+        row = ""
+        for j in range(0, len(board)):
+            row += board[i][j] + " "
+        print(row)
 
 def main():
     board = [
@@ -79,9 +87,28 @@ def main():
     maximizing_player = "W"
     pieces_on_board_dict = get_piece_count_dict(board)
     value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player)
-    print(best_move)
-    print("score: ")
-    print(value)
+    print("best move score: ", value)
+    make_move(board, best_move, turn_color)
+    display_board(board)
+    while(True):
+        if(turn_color == white):
+            turn_color = black
+        else:
+            turn_color = white
+
+        maximizing_player= turn_color
+        pieces_on_board_dict = get_piece_count_dict(board)
+        value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player)
+        make_move(board, best_move, turn_color)
+        print("best move score: ", value)
+        print("turn is ", turn_color)
+        print("move is ", best_move)
+        display_board(board)
+        print()
+        print()
+        if(len(check_winner(board)) != 0):
+            break;
+    
 
 if __name__ == "__main__":
     main()

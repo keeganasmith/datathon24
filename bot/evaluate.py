@@ -16,11 +16,15 @@ def heuristic(board, turn_color):
         return math.inf
     # two in a row - maybe let chains handle this - maybe check for 2 in a row (blocked/unblocked)
     
-    #check for chains and increase score using quadratic multiplier
+    # check for chains and increase score using quadratic multiplier
     
     chains, chain_sizes = find_chains(board, turn_color)
+
     for chain_size in chain_sizes:
         score += chain_size * chain_size
+        
+    # apply penalty to having adjacent enemies in your chain
+    score += penalize_adjacent_enemies_in_chain(board, chains, turn_color)
 
     return score
 
@@ -62,14 +66,41 @@ def find_chains(board, turn_color):
 
     return chains, chain_sizes
 
+def penalize_adjacent_enemies_in_chain(board, chains, turn_color):
+    score = 0
+    board_size = len(board)
+
+    for chain in chains:
+        for row, col in chain:
+            enemy_color = 'B' if turn_color == 'W' else 'W'
+
+            if board[(row - 1) % board_size][col % board_size] == enemy_color:
+                score -= 1
+            if board[(row + 1) % board_size][col % board_size] == enemy_color:
+                score -= 1
+            if board[row % board_size][(col - 1) % board_size] == enemy_color:
+                score -= 1
+            if board[row % board_size][(col + 1) % board_size] == enemy_color:
+                score -= 1
+            if board[(row - 1) % board_size][(col - 1) % board_size] == enemy_color:
+                score -= 1
+            if board[(row + 1) % board_size][(col + 1) % board_size] == enemy_color:
+                score -= 1
+            if board[(row + 1) % board_size][(col - 1) % board_size] == enemy_color:
+                score -= 1
+            if board[(row - 1) % board_size][(col + 1) % board_size] == enemy_color:
+                score -= 1
+
+    return score
+
+
 # Example usage:
 if __name__ == "__main__":
     board = [
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', 'B', '.', '.', '.', 'B'],
+    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.']
