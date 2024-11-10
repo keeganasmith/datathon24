@@ -72,6 +72,9 @@ def heuristic(pboard, turn_color):
 
     #initial score
     score = 0
+    chain_score_weight = .6
+    pulse_score_weight = .4
+
 
     board = Board()
     board.from_2d_array(pboard)
@@ -80,34 +83,29 @@ def heuristic(pboard, turn_color):
     # if(check_win == true):
     #     score = +infinity
     if turn_color in check_winner(board):
-        #print("got here")
-        #print(board)
         return math.inf
-    # two in a row - maybe let chains handle this - maybe check for 2 in a row (blocked/unblocked)
     
-    # check for chains and increase score using quadratic multiplier
-    
+    # Chain Heuristic - (i.e 2 in a row) - maybe add a bonus for 2 in a row being unblocked on both sides? or is pulse handling this?
     chains, chain_sizes = find_chains(board, turn_color)
-
+    chain_score = 0
     for chain_size in chain_sizes:
-        score += chain_size * chain_size
+        if chain_size > 1:
+            chain_score += chain_size
+    chain_score /= 8
 
+    # Gets all of our checkers
     tiles = get_tiles(board)
 
+    # Pulse Heuristic
     pulse_weights =[2, 1.5]
-
-
-    for i in range(len(tiles)):
-        #print("Starting ", i)
-        #print(tiles[i])
-        for j in range(len(pulse_weights)):
-            score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], turn_color, j+1)
+    pulse_score = 0
     
-    #find closest peg horizontally, and closest peg vertically
+    for i in range(len(tiles)):
+        for j in range(len(pulse_weights)):
+            pulse_score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], turn_color, j+1)
 
-    #make into square, other chain peg is corner, horizontally and vertically  are opposite sides
-
-    #count how many enemy pegs in square, add some 
+    pulse_score /= 40
+    score += chain_score * chain_score_weight + pulse_score * pulse_score_weight
 
     return score
 
@@ -123,18 +121,6 @@ def get_tiles(board, turn_color):
     return tiles
 
 def get_surrounding_area(board, row, col, fweight, turn_color, radius=1):
-    """
-    Gets the positions surrounding a given cell within a specified radius, applying torus rules (wrapping around edges).
-
-    Parameters:
-    grid (list of list): The 2D grid representing the board.
-    row (int): Row index of the cell to check.
-    col (int): Column index of the cell to check.
-    radius (int): Radius to check around the cell.
-
-    Returns:
-    list of tuples: List of (row, col) positions within the radius.
-    """
     max_row = 8
     max_col = 8
 
