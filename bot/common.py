@@ -1,7 +1,6 @@
 import math
 import Board
 
-
 ALPHA = -math.inf
 BETA = math.inf
 DEPTH = 3
@@ -47,7 +46,7 @@ def get_valid_moves(board, turn_color, num_pieces_on_board):
                 for k in range(-1, 1):
                     for l in range(-1, 1):
                         if(k == 0 and l ==0):
-                            continue;
+                            continue
                         
                         if(get_square(board, i + k, j + l) == EMPTY):
                             possible_moves.append(Move(r0 = i, c0 = j, r1 = k, c1 = l))
@@ -102,7 +101,7 @@ def get_piece_count_dict(board):
     for i in range(0, BOARD_SIZE):
         for j in range(0, BOARD_SIZE):
             if(board.get_cell(i, j) != EMPTY):
-                result[board[i][j]] += 1
+                result[board.get_cell(i, j)] += 1
 
     return result
 
@@ -111,13 +110,13 @@ def unmove(board, push_moves, move):
         make_soft_move(board, my_move)
         
     reversed_move = Move(r0 = move.r1, c0 = move.c1, r1 = move.r0, c1 = move.c1)
-    temp = board[reversed_move.r0][reversed_move.c0]
-    board[reversed_move.r0][reversed_move.c0] = EMPTY
+    temp = board.get_cell(reversed_move.r0, reversed_move.c0)
+    board.set_cell(reversed_move.r0, reversed_move.c0, EMPTY)
 
     if(reversed_move.r1 is None): #piece was moved from off the board
         return
     
-    board[reversed_move.r1][reversed_move.c1] = temp
+    board.set_cell(reversed_move.r1, reversed_move.c1, temp)
 
 def check_winner_for_color(board, pieces, color):
     for i in range(0, len(pieces)):
@@ -125,29 +124,29 @@ def check_winner_for_color(board, pieces, color):
         start_col = pieces[i][1]
         #check up
         row, col = _torus(start_row -1, start_col)
-        if(board[row][col] == color):
+        if(board.get_cell(row, col) == color):
             row, col = _torus(start_row + 1, start_col)
-            if(board[row][col] == color):
+            if(board.get_cell(row, col) == color):
                 return True
         
         #check horizontal
         row, col = _torus(start_row, start_col - 1)
-        if(board[row][col] == color):
+        if(board.get_cell(row, col) == color):
             row, col = _torus(start_row, start_col + 1)
-            if(board[row][col] == color):
+            if(board.get_cell(row, col) == color):
                 return True
         #check left diagonal
         row, col = _torus(start_row-1, start_col - 1)
-        if(board[row][col] == color):
+        if(board.get_cell(row, col) == color):
             row, col = _torus(start_row + 1, start_col + 1)
-            if(board[row][col] == color):
-                return True;
+            if(board.get_cell(row, col) == color):
+                return True
         #check right diagonal
         row, col = _torus(start_row-1, start_col + 1)
-        if(board[row][col] == color):
+        if(board.get_cell(row, col) == color):
             row, col = _torus(start_row + 1, start_col - 1)
-            if(board[row][col] == color):
-                return True;
+            if(board.get_cell(row, col) == color):
+                return True
     return False
 
 def check_winner_efficient(board, white_pieces, black_pieces):
@@ -173,17 +172,7 @@ def retrieve_pieces_dictionary(board):
     result[BLACK] = []
     for i in range(0, BOARD_SIZE):
         for j in range(0, BOARD_SIZE):
-            element = board[i][j]
+            element = board.get_cell(i, j)
             if(element != EMPTY):
                 result[element].append([i, j])
     return result
-
-def convert_from_input_board(board):
-    for i in range(0, BOARD_SIZE):
-        for j in range(0, BOARD_SIZE):
-            if(board[i][j] == -1):
-                board[i][j] = "B"
-            if(board[i][j] == 0):
-                board[i][j] = "."
-            if(board[i][j] == 1):
-                board[i][j] = "W"
