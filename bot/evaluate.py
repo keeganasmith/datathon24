@@ -95,8 +95,6 @@ def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
                 if(board[wrapped_r][wrapped_c] == 'B'):
                     score += fweight
                     #print("Near friend at radius: ", radius)
-                elif(board[wrapped_r][wrapped_c] != '.'):
-                    score -= eweight
                     #print("Near enemy at radius: ", radius)
 
     return score
