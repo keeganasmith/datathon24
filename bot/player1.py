@@ -10,7 +10,6 @@ from common import *
 app = Flask(__name__)
 
 agent = None
-DEPTH=2
 @app.route('/start', methods=['POST'])
 def start_game():
     """
@@ -72,7 +71,6 @@ def make_move():
     game = Game.from_dict(game_data)
     board = data.get('board')
     convert_from_input_board(board)
-    print(board)
     turn_count = data.get('turn_count')
     attempt_number = data.get('attempt_number')
     current_player = game.current_player
@@ -87,7 +85,7 @@ def make_move():
     # Move logic should go here
     # This is where you'd call your minimax/MCTS/neural network/etc
 
-    value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color)
+    value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA)
     result = convert_move_to_list(move)
     ###################
     
