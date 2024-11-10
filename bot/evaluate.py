@@ -65,28 +65,16 @@ class Board:
                 row_array.append(self.get_cell(row, col))
             array.append(row_array)
         return array
-
-# Example usage:
-board = Board()
-input_array = [
-    [0, 1, -1, 0, 0, 1, -1, 0],
-    [-1, 0, 1, 0, -1, 0, 1, -1],
-    [0, -1, 0, 1, 0, -1, 0, 1],
-    [1, 0, -1, 0, 1, 0, -1, 0],
-    [0, 1, 0, -1, 0, 1, 0, -1],
-    [-1, 0, 1, 0, -1, 0, 1, 0],
-    [0, -1, 0, 1, 0, -1, 0, 1],
-    [1, 0, -1, 0, 1, 0, -1, 0]
-]
-
-board.from_2d_array(input_array)
-print(board.to_2d_array())
+    
 
 
-def heuristic(board, turn_color):
+def heuristic(pboard, turn_color):
 
     #initial score
     score = 0
+
+    board = Board()
+    board.from_2d_array(pboard)
     
     # 3 in a row
     # if(check_win == true):
@@ -103,22 +91,8 @@ def heuristic(board, turn_color):
 
     for chain_size in chain_sizes:
         score += chain_size * chain_size
-        
-    # apply penalty to having adjacent enemies in your chain
-    score += penalize_adjacent_enemies_in_chain(board, chains, turn_color)
-
-
-    #Find distance between chains:
-    # chain_centers = []
-
-    # for i in range(chains):
-    #     chain_centers[i] = chain_center(i)
-
-    # for i in range(chains-1):
-    #     for j in range(i+1, chains):
 
     tiles = get_tiles(board)
-
 
     pulse_weights =[2, 1.5]
 
@@ -127,7 +101,7 @@ def heuristic(board, turn_color):
         #print("Starting ", i)
         #print(tiles[i])
         for j in range(len(pulse_weights)):
-            score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], pulse_weights[j], j+1)
+            score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], turn_color, j+1)
     
     #find closest peg horizontally, and closest peg vertically
 
@@ -139,16 +113,16 @@ def heuristic(board, turn_color):
 
 
 def get_tiles(board, turn_color):
-    rows = len(board)
-    cols = len(board[0]) if rows > 0 else 0
+    rows = 8
+    cols = 8
     tiles = []
     for i in range(rows):
         for j in range(cols):
-            if(board[i][j] == ''):
+            if(board.get_cell(i,j) == turn_color):
                 tiles.append((i,j))
     return tiles
 
-def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
+def get_surrounding_area(board, row, col, fweight, turn_color, radius=1):
     """
     Gets the positions surrounding a given cell within a specified radius, applying torus rules (wrapping around edges).
 
@@ -161,8 +135,8 @@ def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
     Returns:
     list of tuples: List of (row, col) positions within the radius.
     """
-    max_row = len(board)
-    max_col = len(board[0]) if max_row > 0 else 0
+    max_row = 8
+    max_col = 8
 
     score = 0
     for r in range(row - radius, row + radius + 1):
@@ -173,7 +147,7 @@ def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
 
             # Check if the position is not the center position
             if (wrapped_r != row or wrapped_c != col):
-                if(board[wrapped_r][wrapped_c] == 'B'):
+                if(board.get_cell(wrapped_r, wrapped_c) == turn_color):
                     score += fweight
                     #print("Near friend at radius: ", radius)
                     #print("Near enemy at radius: ", radius)
@@ -183,8 +157,8 @@ def get_surrounding_area(board, row, col, fweight, eweight, radius=1):
 
 # function returns chains with positions as well as list of chain sizes
 def find_chains(board, turn_color):
-    rows = len(board)
-    cols = len(board[0]) if rows > 0 else 0
+    rows = 8
+    cols = 8
     visited = [[False for _ in range(cols)] for _ in range(rows)]
     chains = []
 
@@ -196,7 +170,7 @@ def find_chains(board, turn_color):
         if visited[r][c]:
             return
         visited[r][c] = True
-        if board[r][c] != turn_color:
+        if board.get_cell(r,c) != turn_color:
             return
         chain.append((r, c))
         for dr, dc in directions:
@@ -207,7 +181,7 @@ def find_chains(board, turn_color):
 
     for r in range(rows):
         for c in range(cols):
-            if not visited[r][c] and board[r][c] == turn_color:
+            if not visited[r][c] and board.get_cell(r,c) == turn_color:
                 chain = []
                 dfs(r, c, chain)
                 if chain:
@@ -217,46 +191,3 @@ def find_chains(board, turn_color):
     chain_sizes = [len(chain) for chain in chains]
 
     return chains, chain_sizes
-
-def penalize_adjacent_enemies_in_chain(board, chains, turn_color):
-    score = 0
-    board_size = len(board)
-
-    for chain in chains:
-        for row, col in chain:
-            enemy_color = 'B' if turn_color == 'W' else 'W'
-
-            if board[(row - 1) % board_size][col % board_size] == enemy_color:
-                score -= 1
-            if board[(row + 1) % board_size][col % board_size] == enemy_color:
-                score -= 1
-            if board[row % board_size][(col - 1) % board_size] == enemy_color:
-                score -= 1
-            if board[row % board_size][(col + 1) % board_size] == enemy_color:
-                score -= 1
-            if board[(row - 1) % board_size][(col - 1) % board_size] == enemy_color:
-                score -= 1
-            if board[(row + 1) % board_size][(col + 1) % board_size] == enemy_color:
-                score -= 1
-            if board[(row + 1) % board_size][(col - 1) % board_size] == enemy_color:
-                score -= 1
-            if board[(row - 1) % board_size][(col + 1) % board_size] == enemy_color:
-                score -= 1
-
-    return score
-
-
-# Example usage:
-if __name__ == "__main__":
-    board = [
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'B', '.', '.', 'B', '.'],
-    ['.', '.', 'B', 'B', 'B', '.', '.', '.'],
-    ['.', '.', '.', 'B', '.', '.', '.', 'B'],
-    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.']
-    ]
-    print(heuristic(board, 'B'))
