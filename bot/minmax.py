@@ -19,10 +19,8 @@ def account_for_push_moves_after(board, piece_dictionary, push_moves):
         index = index_of(piece_dictionary[color], [move.r0, move.c0])
         piece_dictionary[color][index] = [move.r1, move.c1]
 def check_if_in_board_state(board, turn_color):
-    my_byte_array = bytearray(board.board)
-    number_bytes = turn_color.to_bytes(1, byteorder='big', signed=True)
-    my_byte_array.extend(number_bytes)
-    game_state_key = bytes(my_byte_array)
+    game_state_key = board.to_string()
+    game_state_key += str(turn_color)
     move = BADASS_TABLE.get(game_state_key, None)
     return move
 

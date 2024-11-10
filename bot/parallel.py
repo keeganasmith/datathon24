@@ -87,10 +87,12 @@ def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn
 
 # Function to process a single board state
 def process_board_state(board_state, my_board):
-    my_byte_array = bytearray(board_state[0].board)
-    number_bytes = board_state[1].to_bytes(1, byteorder='big', signed=True)
-    my_byte_array.extend(number_bytes)
-    game_state_key = bytes(my_byte_array)
+    # my_byte_array = bytearray(board_state[0].board)
+    # number_bytes = board_state[1].to_bytes(1, byteorder='big', signed=True)
+    # my_byte_array.extend(number_bytes)
+    # game_state_key = bytes(my_byte_array)
+    game_state_key = board_state[0].to_string()
+    game_state_key += str(board_state[1])
     turn_color = board_state[1]
     maximizing_player = True
     pieces_on_board_dict = get_piece_count_dict(board_state[0])

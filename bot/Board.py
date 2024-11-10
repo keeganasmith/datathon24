@@ -60,3 +60,9 @@ class Board:
                 row_array.append(self.get_cell(row, col))
             array.append(row_array)
         return array
+    def to_string(self):
+        result = ""
+        for row in range(self.size):
+            for col in range(self.size):
+                result += str(self.get_cell(row, col))
+        return result
