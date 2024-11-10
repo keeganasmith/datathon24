@@ -93,12 +93,12 @@ def process_board_state(board_state, my_board):
     game_state_key = bytes(my_byte_array)
     turn_color = board_state[1]
     maximizing_player = True
-    pieces_on_board_dict = get_piece_count_dict(my_board)
+    pieces_on_board_dict = get_piece_count_dict(board_state[0].board)
     maximizing_color = turn_color
     
     # Call the minimax function or another AI method
-    pieces_dictionary = retrieve_pieces_dictionary(my_board)
-    value, move = min_max(my_board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict,
+    pieces_dictionary = retrieve_pieces_dictionary(board_state[0].board)
+    value, move = min_max(board_state[0].board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict,
                           maximizing_color, ALPHA, BETA, pieces_dictionary)
     print("finished game state")
     return game_state_key, move
@@ -121,6 +121,7 @@ def main():
     game_state_depth = 3
     get_possible_game_states(game_state_depth, my_board, pieces_dictionary, board_states, WHITE, pieces_on_board_dict)
     print("finished retrieving possible game states")
+    print("length of game states is, ", len(board_states))
     # Divide work among MPI processes
     total_board_states = len(board_states)
     local_start = (total_board_states // size) * rank

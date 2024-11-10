@@ -30,6 +30,7 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
     if(first):
         move = check_if_in_board_state(board, turn_color)
         if(move):
+            print("got here")
             return None, move
         first = False
     if depth == 0 or len(check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])) != EMPTY:
