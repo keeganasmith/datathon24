@@ -13,7 +13,7 @@ num_threads = 192
 def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn_color, pieces_on_board_dict):
     if(depth == 0 or check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])):
         return;
-    
+    print(board.to_string())
     board_states.append([board, turn_color])
     pieces_on_board = pieces_on_board_dict[turn_color]
     valid_moves = get_valid_moves(board, turn_color, pieces_on_board)
@@ -24,7 +24,7 @@ def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn
         added_piece = False
         #original_board = copy.deepcopy(board)
         push_moves = make_move(board, move, turn_color)
-        print(board.to_string())
+        #print(board.to_string())
         if(pieces_on_board_dict[turn_color] < BOARD_SIZE):
             pieces_on_board += 1
             pieces_on_board_dict[turn_color] += 1
