@@ -126,7 +126,7 @@ def main():
     print("finished retrieving possible game states")
     print("length of game states is, ", len(board_states))
     for i in range(0, len(board_states)):
-        print(board_states[i].to_string())
+        print(board_states[i][0].to_string())
     #raise Exception("hello there")
     # Divide work among MPI processes
     total_board_states = len(board_states)
