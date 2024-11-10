@@ -24,6 +24,7 @@ def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn
         added_piece = False
         #original_board = copy.deepcopy(board)
         push_moves = make_move(board, move, turn_color)
+        print(board.to_string())
         if(pieces_on_board_dict[turn_color] < BOARD_SIZE):
             pieces_on_board += 1
             pieces_on_board_dict[turn_color] += 1
