@@ -3,7 +3,7 @@ from common import *
 from evaluate import *
 import copy
 
-def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color):
+def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta):
     if depth == 0 or len(check_winner(board)) != 0:
         opposite_color = white
         if(maximizing_color == white):
@@ -32,16 +32,20 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board += 1
                 pieces_on_board_dict[turn_color] += 1
                 added_piece = True
-            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color)
+            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta)
             if(value > max_value):
                 max_value = value
                 best_move = move
+            
             unmove(board, push_moves, move)
             # if(board != original_board):
             #     print("ur a dumbass")
             if(added_piece):
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
+            if(max_value > beta):
+                break;
+            alpha = max(alpha, max_value)
         if best_move is None:
             best_move = valid_moves[0]
         return max_value, best_move
@@ -55,14 +59,18 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board += 1
                 pieces_on_board_dict[turn_color] += 1
                 added_piece = True
-            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color)
+            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta)
             min_value = min(value, min_value)
+            
             unmove(board, push_moves, move)
             # if(board != original_board):
             #     print("ur a dumbass")
             if(added_piece):
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
+            if(min_value < alpha):
+                break;
+            beta = min(beta, min_value)
         return min_value, None
 def display_board(board):
     for i in range(0, len(board)):
@@ -82,11 +90,12 @@ def main():
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.']
     ]
+    
     turn_color = "W"
     depth = 3
     maximizing_player = "W"
     pieces_on_board_dict = get_piece_count_dict(board)
-    value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player)
+    value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player, ALPHA, BETA)
     print("best move score: ", value)
     make_move(board, best_move, turn_color)
     display_board(board)
@@ -98,7 +107,7 @@ def main():
 
         maximizing_player= turn_color
         pieces_on_board_dict = get_piece_count_dict(board)
-        value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player)
+        value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player, ALPHA, BETA)
         make_move(board, best_move, turn_color)
         print("best move score: ", value)
         print("turn is ", turn_color)
