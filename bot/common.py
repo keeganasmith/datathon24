@@ -3,7 +3,7 @@ import Board
 
 ALPHA = -math.inf
 BETA = math.inf
-DEPTH = 3
+DEPTH = 2
 
 WHITE = 1
 BLACK = -1
@@ -65,10 +65,10 @@ def push_neighbors(board, r0, c0):
     for dr, dc in dirs:
         r1, c1 = _torus(r0 + dr, c0 + dc)
 
-        if board[r1][c1] != EMPTY:
+        if board.get_cell(r1, c1) != EMPTY:
             r2, c2 = _torus(r1 + dr, c1 + dc)
 
-            if board[r2][c2] == EMPTY:
+            if board.get_cell(r2, c2) == EMPTY:
                 temp = board.get_cell(r1, c1)
                 board.set_cell(r1, c1, board.get_cell(r2, c2))
                 board.set_cell(r2, c2, temp)

@@ -9,23 +9,23 @@ def index_of(pieces, target):
     return -1
 def account_for_push_moves(board, piece_dictionary, push_moves):
     for move in push_moves:
-        color = board[move.r0][move.c0]
+        color = board.get_cell(move.r0, move.c0)
         index = index_of(piece_dictionary[color], [move.r1, move.c1])
         piece_dictionary[color][index] = [move.r0, move.c0]
 
 def account_for_push_moves_after(board, piece_dictionary, push_moves):
      for move in push_moves:
-        color = board[move.r0][move.c0]
+        color = board.get_cell(move.r0, move.c0)
         index = index_of(piece_dictionary[color], [move.r0, move.c0])
         piece_dictionary[color][index] = [move.r1, move.c1]
     
 def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary):
-    if depth == 0 or len(check_winner_efficient(board, pieces_dictionary[white], pieces_dictionary[black])) != 0:
-        opposite_color = white
-        if(maximizing_color == white):
-            opposite_color = black
-        my_heuristic = heuristic(board, maximizing_color)
-        other_heuristic = heuristic(board, opposite_color)
+    if depth == 0 or len(check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])) != EMPTY:
+        opposite_color = WHITE
+        if(maximizing_color == WHITE):
+            opposite_color = BLACK
+        my_heuristic = heuristic(board, maximizing_color, pieces_dictionary[maximizing_color]) # this shit might not work
+        other_heuristic = heuristic(board, opposite_color, pieces_dictionary[opposite_color])
         if(my_heuristic == math.inf and other_heuristic == math.inf):
             if(turn_color == opposite_color):
                 return math.inf, None
@@ -34,12 +34,12 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
     
     pieces_on_board = pieces_on_board_dict[turn_color]
     valid_moves = get_valid_moves(board, turn_color, pieces_on_board)
-    next_turn_color = white
-    if(turn_color == white):
-        next_turn_color = black
+    next_turn_color = WHITE
+    if(turn_color == WHITE):
+        next_turn_color = BLACK
     if(maximizing_player):
         max_value = -math.inf
-        best_move = None;
+        best_move = None
         for move in valid_moves:
             added_piece = False
             #original_board = copy.deepcopy(board)
@@ -67,7 +67,7 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
             if(max_value > beta):
-                break;
+                break
             alpha = max(alpha, max_value)
         if best_move is None:
             best_move = valid_moves[0]
@@ -100,14 +100,14 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board -= 1
                 pieces_on_board_dict[turn_color] -= 1
             if(min_value < alpha):
-                break;
+                break
             beta = min(beta, min_value)
         return min_value, None
 def display_board(board):
     for i in range(0, len(board)):
         row = ""
         for j in range(0, len(board)):
-            row += board[i][j] + " "
+            row += board.get_cell(i, j) + " "
         print(row)
 
 

@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from PushBattle import Game, PLAYER1, PLAYER2, EMPTY, BOARD_SIZE, NUM_PIECES, _torus
 from minmax import *
 from common import *
+from Board import Board
+
 # This simulates player 2 always playing random moves - you may modify to test locally
 
 # Import This
@@ -69,14 +71,16 @@ def make_move():
     data = request.get_json()
     game_data = data.get('game')
     game = Game.from_dict(game_data)
-    board = data.get('board')
-
+    pboard = data.get('board')
+    board = Board()
+    board.from_2d_array(pboard)
+    
     turn_count = data.get('turn_count')
     attempt_number = data.get('attempt_number')
     current_player = game.current_player
-    turn_color = black
+    turn_color = BLACK
     if(current_player == 1):
-        turn_color = white
+        turn_color = WHITE
     maximizing_player = True
     pieces_on_board_dict = get_piece_count_dict(board)
     maximizing_color = turn_color

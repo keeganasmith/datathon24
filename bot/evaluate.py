@@ -1,24 +1,20 @@
 from common import *
 import math
-import Board
+from Board import Board
 # board is a 8x8 2d array containing pieces that are either W, B, .
 # turn_color is W or B
 
-def heuristic(pboard, turn_color):
+def heuristic(board, turn_color, pieces):
 
     #initial score
     score = 0
     chain_score_weight = .6
     pulse_score_weight = .4
-
-
-    board = Board()
-    board.from_2d_array(pboard)
     
     # 3 in a row
     # if(check_win == true):
     #     score = +infinity
-    if turn_color in check_winner(board):
+    if check_winner_for_color(board, pieces, turn_color):
         return math.inf
     
     # Chain Heuristic - (i.e 2 in a row) - maybe add a bonus for 2 in a row being unblocked on both sides? or is pulse handling this?
@@ -29,32 +25,18 @@ def heuristic(pboard, turn_color):
             chain_score += chain_size
     chain_score /= 8
 
-    # Gets all of our checkers
-    tiles = get_tiles(board)
-
     # Pulse Heuristic
     pulse_weights =[2, 1.5]
     pulse_score = 0
     
-    for i in range(len(tiles)):
+    for i in range(len(pieces)):
         for j in range(len(pulse_weights)):
-            pulse_score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], turn_color, j+1)
+            pulse_score += get_surrounding_area(board, pieces[i][0], pieces[i][1], pulse_weights[j], turn_color, j+1)
 
     pulse_score /= 40
     score += chain_score * chain_score_weight + pulse_score * pulse_score_weight
 
     return score
-
-
-def get_tiles(board, turn_color):
-    rows = 8
-    cols = 8
-    tiles = []
-    for i in range(rows):
-        for j in range(cols):
-            if(board.get_cell(i,j) == turn_color):
-                tiles.append((i,j))
-    return tiles
 
 def get_surrounding_area(board, row, col, fweight, turn_color, radius=1):
     max_row = 8
