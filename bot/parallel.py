@@ -93,12 +93,12 @@ def process_board_state(board_state, my_board):
     game_state_key = bytes(my_byte_array)
     turn_color = board_state[1]
     maximizing_player = True
-    pieces_on_board_dict = get_piece_count_dict(board_state[0].board)
+    pieces_on_board_dict = get_piece_count_dict(board_state[0])
     maximizing_color = turn_color
     
     # Call the minimax function or another AI method
-    pieces_dictionary = retrieve_pieces_dictionary(board_state[0].board)
-    value, move = min_max(board_state[0].board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict,
+    pieces_dictionary = retrieve_pieces_dictionary(board_state[0])
+    value, move = min_max(board_state[0], turn_color, DEPTH, maximizing_player, pieces_on_board_dict,
                           maximizing_color, ALPHA, BETA, pieces_dictionary)
     print("finished game state")
     return game_state_key, move
