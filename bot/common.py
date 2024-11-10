@@ -1,7 +1,18 @@
 import math
+import Board
+
+
 ALPHA = -math.inf
 BETA = math.inf
 DEPTH = 3
+
+WHITE = 1
+BLACK = -1
+EMPTY = 0
+
+PIECES_PER_PLAYER = 8
+BOARD_SIZE = 8
+
 class Move:
     def __init__(self, r0 = None, c0 = None, r1 = None, c1 = None):
         if(r1 == None and c1 == None):
@@ -12,33 +23,35 @@ class Move:
         self.c1 = c1
     def __str__(self):
         return f"start square: {self.r0}, {self.c0}\nend square: {self.r1}, {self.c1}\n"
-white_piece = 1
-black_pieve = -1
-white = 1
-black = -1
-empty = 0
-PIECES_PER_PLAYER = 8
-BOARD_SIZE = 8
+    
 def get_square(board, row, col):
-    if(row < 0 or col < 0 or row > len(board) or col > len(board[0])):
+    #Shoudn't it be row >= BOARD_SIZE?
+    if(row < 0 or col < 0 or row > BOARD_SIZE or col > BOARD_SIZE):
         return None
-    return board[row][col]
+    
+    return board.get_cell(row, col)
+
 def get_valid_moves(board, turn_color, num_pieces_on_board):
     possible_moves = []
     only_place = False
+
     if(num_pieces_on_board < PIECES_PER_PLAYER):
         only_place = True
-    for i in range(0, len(board)):
-        for j in range(0, len(board[0])):
-            if(only_place and get_square(board, i, j) == empty):
+
+    for i in range(0, BOARD_SIZE):
+        for j in range(0, BOARD_SIZE):
+            if(only_place and get_square(board, i, j) == EMPTY):
                 possible_moves.append(Move(r1=i, c1 = j))
+
             elif((not only_place) and turn_color == get_square(board, i, j)):
                 for k in range(-1, 1):
                     for l in range(-1, 1):
                         if(k == 0 and l ==0):
                             continue;
-                        if(get_square(board, i + k, j + l) == empty):
+                        
+                        if(get_square(board, i + k, j + l) == EMPTY):
                             possible_moves.append(Move(r0 = i, c0 = j, r1 = k, c1 = l))
+
     return possible_moves
 
 def _torus(r, c):
@@ -49,43 +62,57 @@ def _torus(r, c):
 def push_neighbors(board, r0, c0):
     dirs = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]
     push_moves = []
+
     for dr, dc in dirs:
         r1, c1 = _torus(r0 + dr, c0 + dc)
-        if board[r1][c1] != empty:
+
+        if board[r1][c1] != EMPTY:
             r2, c2 = _torus(r1 + dr, c1 + dc)
-            if board[r2][c2] == empty:
-                board[r2][c2], board[r1][c1] = board[r1][c1], board[r2][c2]
+
+            if board[r2][c2] == EMPTY:
+                temp = board.get_cell(r1, c1)
+                board.set_cell(r1, c1, board.get_cell(r2, c2))
+                board.set_cell(r2, c2, temp)
                 push_moves.append(Move(r0 = r2, c0 = c2, r1 = r1, c1 = c1))
+
     return push_moves
+
 def make_soft_move(board, move):
-    if(board[move.r0][move.c0] == empty):
+    if(board.get_cell(move.r0, move.c0) == EMPTY):
         raise Exception("no piece here dumbass")
     
-    board[move.r1][move.c1] = board[move.r0][move.c0]
-    board[move.r0][move.c0] = empty
+    board.set_cell(move.r1, move.c1, board.get_cell(move.r0, move.c0))
+    board.set_cell(move.r0, move.c0, EMPTY)
+
 def make_move(board, move, turn_color):
     if(move is None):
-        print("why is move noen?")
+        print("why is move none?")
+
     if move.r0 is not None and move.c0 is not None: #moving a piece (not placing)
-        board[move.r0][move.c0] = "."
+        board.set_cell(move.r0, move.c0, EMPTY)
     
-    board[move.r1][move.c1] = turn_color
+    board.set_cell(move.r1, move.c1, turn_color)
+
     return push_neighbors(board, move.r1, move.c1)
+
 def get_piece_count_dict(board):
     result = {}
-    result[white] = 0
-    result[black] = 0
-    for i in range(0, len(board)):
-        for j in range(0, len(board)):
-            if(board[i][j] != empty):
+    result[WHITE] = 0
+    result[BLACK] = 0
+    for i in range(0, BOARD_SIZE):
+        for j in range(0, BOARD_SIZE):
+            if(board.get_cell(i, j) != EMPTY):
                 result[board[i][j]] += 1
+
     return result
+
 def unmove(board, push_moves, move):
     for my_move in push_moves:
         make_soft_move(board, my_move)
+        
     reversed_move = Move(r0 = move.r1, c0 = move.c1, r1 = move.r0, c1 = move.c1)
     temp = board[reversed_move.r0][reversed_move.c0]
-    board[reversed_move.r0][reversed_move.c0] = empty
+    board[reversed_move.r0][reversed_move.c0] = EMPTY
 
     if(reversed_move.r1 is None): #piece was moved from off the board
         return
@@ -125,106 +152,12 @@ def check_winner_for_color(board, pieces, color):
 
 def check_winner_efficient(board, white_pieces, black_pieces):
     winners = []
-    if(check_winner_for_color(board, white_pieces, white)):
-        winners.append(white)
-    if(check_winner_for_color(board, black_pieces, black)):
-        winners.append(black)
+    if(check_winner_for_color(board, white_pieces, WHITE)):
+        winners.append(WHITE)
+    if(check_winner_for_color(board, black_pieces, BLACK)):
+        winners.append(BLACK)
     return winners
 
-
-        
-def check_winner(board):
-    white_wins = False
-    black_wins = False
-    # check rows
-    for row in range(0, BOARD_SIZE):
-        cnt = 0
-        tile = empty
-        for col in range(-2, BOARD_SIZE+2):
-            r, c = _torus(row, col)
-            curr_tile = board[r][c]
-            if curr_tile == empty:
-                cnt = 0
-            elif curr_tile != tile:
-                cnt = 1
-            else:
-                cnt += 1
-                if (cnt == 3):
-                    if tile == white:
-                        white_wins = True
-                    elif tile == black:
-                        black_wins = True
-            tile = board[r][c]
-
-    # check cols
-    for col in range(0, BOARD_SIZE):
-        cnt = 0
-        tile = empty
-        for row in range(-2, BOARD_SIZE+2):
-            r, c = _torus(row, col)
-            curr_tile = board[r][c]
-            if curr_tile == empty:
-                cnt = 0
-            elif curr_tile != tile:
-                cnt = 1
-            else:
-                cnt += 1
-                if (cnt == 3):
-                    if tile == white:
-                        white_wins = True
-                    elif tile == black:
-                        black_wins = True
-            tile = board[r][c]
-
-    # check negative diagonals
-    for col_start in range(0, BOARD_SIZE):
-        cnt = 0
-        tile = empty
-        for i in range(-2, BOARD_SIZE+2):
-            r, c = _torus(i, col_start + i)
-            curr_tile = board[r][c]
-            if curr_tile == empty:
-                cnt = 0
-            elif curr_tile != tile:
-                cnt = 1
-            else:
-                cnt += 1
-                if (cnt == 3):
-                    if tile == white:
-                        white_wins = True
-                    elif tile == black:
-                        black_wins = True
-            tile = board[r][c]
-
-    # check positive diagonals
-    for col_start in range(0, BOARD_SIZE):
-        cnt = 0
-        tile = empty
-        for i in range(-2, BOARD_SIZE+2):
-            r, c = _torus(i, col_start - i)
-            curr_tile = board[r][c]
-            if curr_tile == empty:
-                cnt = 0
-            elif curr_tile != tile:
-                cnt = 1
-            else:
-                cnt += 1
-                if (cnt == 3):
-                    if tile == white:
-                        white_wins = True
-                    elif tile == black:
-                        black_wins = True
-            tile = board[r][c]
-
-    if white_wins and black_wins:
-        return [white, black]
-    # If only one player has 3 in a row, they win
-    elif white_wins:
-        return [white]
-    elif black_wins:
-        return [black]
-
-    return [] # no one has won the game 
 
 def convert_move_to_list(my_move):
     result = []
@@ -236,12 +169,12 @@ def convert_move_to_list(my_move):
 
 def retrieve_pieces_dictionary(board):
     result = {}
-    result[white] = []
-    result[black] = []
+    result[WHITE] = []
+    result[BLACK] = []
     for i in range(0, BOARD_SIZE):
         for j in range(0, BOARD_SIZE):
             element = board[i][j]
-            if(element != empty):
+            if(element != EMPTY):
                 result[element].append([i, j])
     return result
 
@@ -254,20 +187,3 @@ def convert_from_input_board(board):
                 board[i][j] = "."
             if(board[i][j] == 1):
                 board[i][j] = "W"
-
-def main():
-    board = [
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'B', '.', '.', 'B', '.'],
-    ['.', '.', 'B', 'B', 'B', '.', '.', '.'],
-    ['.', '.', '.', 'B', '.', '.', '.', 'B'],
-    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.']
-    ]
-    result = retrieve_pieces_dictionary(board)
-    print(result)
-if __name__ == "__main__":
-    main()
