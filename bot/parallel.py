@@ -4,6 +4,7 @@ from minmax import *
 from mpi4py import MPI
 from multiprocessing import Pool, cpu_count
 import pickle
+import copy
 
 # Initialize MPI
 comm = MPI.COMM_WORLD
@@ -13,8 +14,7 @@ num_threads = 192
 def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn_color, pieces_on_board_dict):
     if(depth == 0 or check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])):
         return;
-    print(board.to_string())
-    board_states.append([board, turn_color])
+    board_states.append([copy.deepcopy(original_list), turn_color])
     pieces_on_board = pieces_on_board_dict[turn_color]
     valid_moves = get_valid_moves(board, turn_color, pieces_on_board)
     next_turn_color = WHITE
