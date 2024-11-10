@@ -12,11 +12,11 @@ class Move:
         self.c1 = c1
     def __str__(self):
         return f"start square: {self.r0}, {self.c0}\nend square: {self.r1}, {self.c1}\n"
-white_piece = "W"
-black_pieve = "B"
-white = "W"
-black = "B"
-empty = "."
+white_piece = 1
+black_pieve = -1
+white = 1
+black = -1
+empty = 0
 PIECES_PER_PLAYER = 8
 BOARD_SIZE = 8
 def get_square(board, row, col):

@@ -70,7 +70,6 @@ def make_move():
     game_data = data.get('game')
     game = Game.from_dict(game_data)
     board = data.get('board')
-    convert_from_input_board(board)
     turn_count = data.get('turn_count')
     attempt_number = data.get('attempt_number')
     current_player = game.current_player
