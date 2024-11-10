@@ -84,8 +84,9 @@ def make_move():
 
     # Move logic should go here
     # This is where you'd call your minimax/MCTS/neural network/etc
-
-    value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA)
+   
+    pieces_dictionary = retrieve_pieces_dictionary(board)
+    value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA, pieces_dictionary)
     result = convert_move_to_list(move)
     ###################
     

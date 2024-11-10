@@ -2,9 +2,25 @@ import math
 from common import *
 from evaluate import *
 import copy
+def index_of(pieces, target):
+    for i in range(0, len(pieces)):
+        if(pieces[i] == target):
+            return i
+    return -1
+def account_for_push_moves(board, piece_dictionary, push_moves):
+    for move in push_moves:
+        color = board[move.r0][move.c0]
+        index = index_of(piece_dictionary[color], [move.r1, move.c1])
+        piece_dictionary[color][index] = [move.r0, move.c0]
 
-def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta):
-    if depth == 0 or len(check_winner(board)) != 0:
+def account_for_push_moves_after(board, piece_dictionary, push_moves):
+     for move in push_moves:
+        color = board[move.r0][move.c0]
+        index = index_of(piece_dictionary[color], [move.r0, move.c0])
+        piece_dictionary[color][index] = [move.r1, move.c1]
+    
+def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary):
+    if depth == 0 or len(check_winner_efficient(board, pieces_dictionary[white], pieces_dictionary[black])) != 0:
         opposite_color = white
         if(maximizing_color == white):
             opposite_color = black
@@ -32,7 +48,14 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board += 1
                 pieces_on_board_dict[turn_color] += 1
                 added_piece = True
-            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta)
+            account_for_push_moves(board, pieces_dictionary, push_moves)
+            if(not (move.r0 is None)):
+                index = index_of(pieces_dictionary[turn_color], [move.r0, move.c0])
+                del pieces_dictionary[turn_color][index]
+            pieces_dictionary[turn_color].append([move.r1, move.c1])
+            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary)
+            pieces_dictionary[turn_color].pop()
+            account_for_push_moves_after(board, pieces_dictionary, push_moves)
             if(value > max_value):
                 max_value = value
                 best_move = move
@@ -59,7 +82,15 @@ def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, m
                 pieces_on_board += 1
                 pieces_on_board_dict[turn_color] += 1
                 added_piece = True
-            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta)
+            account_for_push_moves(board, pieces_dictionary, push_moves)
+
+            if(not (move.r0 is None)):
+                index = index_of(pieces_dictionary[turn_color], [move.r0, move.c0])
+                del pieces_dictionary[turn_color][index]
+            pieces_dictionary[turn_color].append([move.r1, move.c1])
+            value, _garb = min_max(board, next_turn_color, depth-1, not maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary)
+            pieces_dictionary[turn_color].pop()
+            account_for_push_moves_after(board, pieces_dictionary, push_moves)
             min_value = min(value, min_value)
             
             unmove(board, push_moves, move)
@@ -79,49 +110,6 @@ def display_board(board):
             row += board[i][j] + " "
         print(row)
 
-def main():
-    board = [
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.']
-    ]
-    
-    turn_color = "W"
-    depth = 3
-    maximizing_player = "W"
-    pieces_on_board_dict = get_piece_count_dict(board)
-    value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player, ALPHA, BETA)
-    print("best move score: ", value)
-    make_move(board, best_move, turn_color)
-    display_board(board)
-    while(True):
-        if(turn_color == white):
-            turn_color = black
-        else:
-            turn_color = white
-
-        maximizing_player= turn_color
-        pieces_on_board_dict = get_piece_count_dict(board)
-        value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player, ALPHA, BETA)
-        make_move(board, best_move, turn_color)
-        print("best move score: ", value)
-        print("turn is ", turn_color)
-        print("move is ", best_move)
-        display_board(board)
-        print()
-        print()
-        if(len(check_winner(board)) != 0):
-            break;
-    
-
-if __name__ == "__main__":
-    main()
-        
 
             
 

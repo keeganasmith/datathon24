@@ -1,4 +1,7 @@
 import math
+ALPHA = -math.inf
+BETA = math.inf
+DEPTH = 3
 class Move:
     def __init__(self, r0 = None, c0 = None, r1 = None, c1 = None):
         if(r1 == None and c1 == None):
@@ -88,7 +91,48 @@ def unmove(board, push_moves, move):
         return
     
     board[reversed_move.r1][reversed_move.c1] = temp
-    
+
+def check_winner_for_color(board, pieces, color):
+    for i in range(0, len(pieces)):
+        start_row = pieces[i][0]
+        start_col = pieces[i][1]
+        #check up
+        row, col = _torus(start_row -1, start_col)
+        if(board[row][col] == color):
+            row, col = _torus(start_row + 1, start_col)
+            if(board[row][col] == color):
+                return True
+        
+        #check horizontal
+        row, col = _torus(start_row, start_col - 1)
+        if(board[row][col] == color):
+            row, col = _torus(start_row, start_col + 1)
+            if(board[row][col] == color):
+                return True
+        #check left diagonal
+        row, col = _torus(start_row-1, start_col - 1)
+        if(board[row][col] == color):
+            row, col = _torus(start_row + 1, start_col + 1)
+            if(board[row][col] == color):
+                return True;
+        #check right diagonal
+        row, col = _torus(start_row-1, start_col + 1)
+        if(board[row][col] == color):
+            row, col = _torus(start_row + 1, start_col - 1)
+            if(board[row][col] == color):
+                return True;
+    return False
+
+def check_winner_efficient(board, white_pieces, black_pieces):
+    winners = []
+    if(check_winner_for_color(board, white_pieces, white)):
+        winners.append(white)
+    if(check_winner_for_color(board, black_pieces, black)):
+        winners.append(black)
+    return winners
+
+
+        
 def check_winner(board):
     white_wins = False
     black_wins = False
@@ -190,12 +234,40 @@ def convert_move_to_list(my_move):
         result = [my_move.r0, my_move.c0, my_move.r1, my_move.c1]
     return result
 
+def retrieve_pieces_dictionary(board):
+    result = {}
+    result[white] = []
+    result[black] = []
+    for i in range(0, BOARD_SIZE):
+        for j in range(0, BOARD_SIZE):
+            element = board[i][j]
+            if(element != empty):
+                result[element].append([i, j])
+    return result
+
 def convert_from_input_board(board):
-    for i in range(0, len(board)):
-        for j in range(0, len(board)):
-            if(board[i][j] == 0):
-                board[i][j] = '.'
-            elif(board[i][j] == 1):
-                board[i][j] = "W"
-            elif(board[i][j] == -1):
+    for i in range(0, BOARD_SIZE):
+        for j in range(0, BOARD_SIZE):
+            if(board[i][j] == -1):
                 board[i][j] = "B"
+            if(board[i][j] == 0):
+                board[i][j] = "."
+            if(board[i][j] == 1):
+                board[i][j] = "W"
+
+def main():
+    board = [
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', '.', 'B', '.', '.', 'B', '.'],
+    ['.', '.', 'B', 'B', 'B', '.', '.', '.'],
+    ['.', '.', '.', 'B', '.', '.', '.', 'B'],
+    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.'],
+    ['.', '.', 'B', '.', 'B', '.', '.', '.'],
+    ['.', '.', '.', '.', '.', '.', '.', '.']
+    ]
+    result = retrieve_pieces_dictionary(board)
+    print(result)
+if __name__ == "__main__":
+    main()
