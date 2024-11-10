@@ -126,7 +126,7 @@ def main():
     print("length of game states is, ", len(board_states))
     for i in range(0, len(board_states)):
         print(board_states[i].to_string())
-    raise Exception("hello there")
+    #raise Exception("hello there")
     # Divide work among MPI processes
     total_board_states = len(board_states)
     local_start = (total_board_states // size) * rank
