@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --job-name=my_job
+#SBATCH --time=1:00:00
+#SBATCH --nodes=4          # max 4 nodes for partition cpu
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=192
+#SBATCH --mem=370G
+#SBATCH --output=out
+#SBATCH --error=err
+ml foss/2023b
+ml Python/3.11.5
+cd $SCRATCH/datathon24/bot
+source venv/bin/activate
+mpirun -n 4  python3 parallel.py

@@ -9,6 +9,7 @@ import pickle
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()  # Process ID (node number)
 size = comm.Get_size()  # Total number of nodes
+num_threads = 192
 def get_possible_game_states(depth, board, pieces_dictionary, board_states, turn_color, pieces_on_board_dict):
     if(depth == 0 or check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])):
         return;
@@ -99,6 +100,7 @@ def process_board_state(board_state, my_board):
     pieces_dictionary = retrieve_pieces_dictionary(my_board)
     value, move = min_max(my_board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict,
                           maximizing_color, ALPHA, BETA, pieces_dictionary)
+    print("finished game state")
     return game_state_key, move
 
 def main():
@@ -118,7 +120,7 @@ def main():
     # Generate possible game states
     game_state_depth = 3
     get_possible_game_states(game_state_depth, my_board, pieces_dictionary, board_states, WHITE, pieces_on_board_dict)
-
+    print("finished retrieving possible game states")
     # Divide work among MPI processes
     total_board_states = len(board_states)
     local_start = (total_board_states // size) * rank
@@ -127,11 +129,11 @@ def main():
         local_end = total_board_states  # Last process handles any remainder
     
     # Process each board state in the local range
-    local_results = {}
-    for i in range(local_start, local_end):
-        game_state_key, move = process_board_state(board_states[i], my_board)
-        local_results[game_state_key] = move
+    with Pool(processes=num_threads) as pool:
+        local_results = pool.starmap(process_board_state, [(board_states[i], my_board) for i in range(local_start, local_end)])
 
+    # Convert local_results to a dictionary
+    local_results_dict = {game_state_key: move for game_state_key, move in local_results} 
     # Gather results from all processes
     all_results = comm.gather(local_results, root=0)
 
@@ -140,7 +142,7 @@ def main():
         final_results = {}
         for result in all_results:
             final_results.update(result)
-        with open("data.pkl", "wb") as f:
+        with open("data1.pkl", "wb") as f:
             pickle.dump(final_results, f)
 
 if __name__ == "__main__":
