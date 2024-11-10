@@ -90,8 +90,14 @@ def make_move():
     # This is where you'd call your minimax/MCTS/neural network/etc
    
     pieces_dictionary = retrieve_pieces_dictionary(board)
-    value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA, pieces_dictionary)
-    result = convert_move_to_list(move)
+    result = []
+    if attempt_number > 1:
+        value, move = min_max(board, turn_color, DEPTH-1, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA, pieces_dictionary)
+        result = convert_move_to_list(move)
+    else:
+        value, move = min_max(board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA, pieces_dictionary)
+        result = convert_move_to_list(move)
+    
     ###################
     
     return jsonify({
