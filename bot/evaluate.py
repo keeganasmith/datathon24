@@ -6,7 +6,8 @@ def heuristic(board, turn_color):
 
     #initial score
     score = 0
-    
+    chain_score_weight = .8
+    pulse_score_weight = .2
     # 3 in a row
     # if(check_win == true):
     #     score = +infinity
@@ -19,12 +20,12 @@ def heuristic(board, turn_color):
     # check for chains and increase score using quadratic multiplier
     
     chains, chain_sizes = find_chains(board, turn_color)
-
+    chain_score = 0
     for chain_size in chain_sizes:
-        score += chain_size * chain_size
-        
+        chain_score += chain_size * chain_size
+    chain_score /= 64
     # apply penalty to having adjacent enemies in your chain
-    score += penalize_adjacent_enemies_in_chain(board, chains, turn_color)
+    # score += penalize_adjacent_enemies_in_chain(board, chains, turn_color)
 
 
     #Find distance between chains:
@@ -41,17 +42,18 @@ def heuristic(board, turn_color):
 
     pulse_weights =[2, 1.5]
 
-
+    pulse_score = 0
     for i in range(len(tiles)):
         #print("Starting ", i)
         #print(tiles[i])
         for j in range(len(pulse_weights)):
-            score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], pulse_weights[j], j+1)
-    
+            pulse_score += get_surrounding_area(board, tiles[i][0], tiles[i][1], pulse_weights[j], pulse_weights[j], j+1)
+
+    pulse_score /= 40
     #find closest peg horizontally, and closest peg vertically
-
+    score += chain_score * chain_score_weight + pulse_score * pulse_score_weight
     #make into square, other chain peg is corner, horizontally and vertically  are opposite sides
-
+    
     #count how many enemy pegs in square, add some 
 
     return score
