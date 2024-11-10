@@ -24,9 +24,10 @@ class Move:
         self.c1 = c1
     def __str__(self):
         return f"start square: {self.r0}, {self.c0}\nend square: {self.r1}, {self.c1}\n"
-# with open("data1.pkl", "rb") as f:
-#     BADASS_TABLE = pickle.load(f)
-#     print(len(BADASS_TABLE.keys()))
+with open("data1.pkl", "rb") as f:
+    BADASS_TABLE = pickle.load(f)
+    print(len(BADASS_TABLE.keys()))
+    print(BADASS_TABLE)
 
 def get_square(board, row, col):
     #Shoudn't it be row >= BOARD_SIZE?
