@@ -56,7 +56,7 @@ def main():
     result = {}
     for i in range(0, len(board_states)):
         #game_states[i] = [Board obj, turn (-1, 1)]
-        my_byte_array = board_states[i][0].board
+        my_byte_array = bytearray(board_states[i][0].board)
         number_bytes = board_states[i][1].to_bytes(1, byteorder='big', signed=True)
         my_byte_array.extend(number_bytes)
         game_state_key = bytes(my_byte_array)
@@ -68,7 +68,6 @@ def main():
 
         # Move logic should go here
         # This is where you'd call your minimax/MCTS/neural network/etc
-        print(game_state_key)
         pieces_dictionary = retrieve_pieces_dictionary(my_board)
         value, move = min_max(my_board, turn_color, DEPTH, maximizing_player, pieces_on_board_dict, maximizing_color, ALPHA, BETA, pieces_dictionary)
         result[game_state_key] = move

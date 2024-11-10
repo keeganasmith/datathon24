@@ -5,7 +5,7 @@ BADASS_TABLE = {}
 
 ALPHA = -math.inf
 BETA = math.inf
-DEPTH = 2
+DEPTH = 4
 
 WHITE = 1
 BLACK = -1
