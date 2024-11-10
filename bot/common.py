@@ -181,3 +181,21 @@ def check_winner(board):
         return [black]
 
     return [] # no one has won the game 
+
+def convert_move_to_list(my_move):
+    result = []
+    if(my_move.r0 is None):
+        result = [my_move.r1, my_move.c1]
+    else:
+        result = [my_move.r0, my_move.c0, my_move.r1, my_move.c1]
+    return result
+
+def convert_from_input_board(board):
+    for i in range(0, len(board)):
+        for j in range(0, len(board)):
+            if(board[i][j] == 0):
+                board[i][j] = '.'
+            elif(board[i][j] == 1):
+                board[i][j] = "W"
+            elif(board[i][j] == -1):
+                board[i][j] = "B"

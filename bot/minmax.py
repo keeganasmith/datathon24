@@ -83,7 +83,7 @@ def main():
     ['.', '.', '.', '.', '.', '.', '.', '.']
     ]
     turn_color = "W"
-    depth = 2
+    depth = 3
     maximizing_player = "W"
     pieces_on_board_dict = get_piece_count_dict(board)
     value, best_move = min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_player)
