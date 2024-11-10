@@ -121,12 +121,10 @@ def main():
     pieces_on_board_dict = {WHITE: 0, BLACK: 0}
 
     # Generate possible game states
-    game_state_depth = 3
+    game_state_depth = 4
     get_possible_game_states(game_state_depth, my_board, pieces_dictionary, board_states, WHITE, pieces_on_board_dict)
     print("finished retrieving possible game states")
     print("length of game states is, ", len(board_states))
-    for i in range(0, len(board_states)):
-        print(board_states[i][0].to_string())
     #raise Exception("hello there")
     # Divide work among MPI processes
     total_board_states = len(board_states)
