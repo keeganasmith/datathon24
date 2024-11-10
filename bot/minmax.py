@@ -18,8 +18,21 @@ def account_for_push_moves_after(board, piece_dictionary, push_moves):
         color = board.get_cell(move.r0, move.c0)
         index = index_of(piece_dictionary[color], [move.r0, move.c0])
         piece_dictionary[color][index] = [move.r1, move.c1]
+def check_if_in_board_state(board, turn_color):
+    my_byte_array = board.board
+    number_bytes = turn_color.to_bytes(1, byteorder='big', signed=True)
+    my_byte_array.extend(number_bytes)
+    game_state_key = bytes(my_byte_array)
     
-def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary):
+    move = BADASS_TABLE.get(game_state_key, None)
+    return move
+
+def min_max(board, turn_color, depth, maximizing_player, pieces_on_board_dict, maximizing_color, alpha, beta, pieces_dictionary, first = True):
+    if(first):
+        move = check_if_in_board_state(board, turn_color)
+        if(move):
+            return None, move
+        first = False
     if depth == 0 or len(check_winner_efficient(board, pieces_dictionary[WHITE], pieces_dictionary[BLACK])) != EMPTY:
         opposite_color = WHITE
         if(maximizing_color == WHITE):
